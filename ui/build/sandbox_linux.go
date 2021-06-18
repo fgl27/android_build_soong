@@ -69,18 +69,18 @@ func (c *Cmd) sandboxSupported() bool {
 	sandboxConfig.once.Do(func() {
 		sandboxConfig.group = "nogroup"
 		if _, err := user.LookupGroup(sandboxConfig.group); err != nil {
-			sandboxConfig.group = "nobody"
+			sandboxConfig.group = "fgl27"
 		}
 
 		cmd := exec.CommandContext(c.ctx.Context, nsjailPath,
-			"-H", "android-build",
+			"-H", "27",
 			"-e",
-			"-u", "nobody",
+			"-u", "fgl27",
 			"-g", sandboxConfig.group,
 			"-B", "/",
 			"--disable_clone_newcgroup",
 			"--",
-			"/bin/bash", "-c", `if [ $(hostname) == "android-build" ]; then echo "Android" "Success"; else echo Failure; fi`)
+			"/bin/bash", "-c", `if [ $(hostname) == "27" ]; then echo "Android" "Success"; else echo Failure; fi`)
 		cmd.Env = c.config.Environment().Environ()
 
 		c.ctx.Verboseln(cmd.Args)
@@ -116,7 +116,7 @@ func (c *Cmd) wrapSandbox() {
 		"-x", c.Path,
 
 		// Set the hostname to something consistent
-		"-H", "android-build",
+		"-H", "27",
 
 		// Use the current working dir
 		"--cwd", wd,
@@ -134,7 +134,7 @@ func (c *Cmd) wrapSandbox() {
 		// Use a consistent user & group.
 		// Note that these are mapped back to the real UID/GID when
 		// doing filesystem operations, so they're rather arbitrary.
-		"-u", "nobody",
+		"-u", "fgl27",
 		"-g", sandboxConfig.group,
 
 		// Set high values, as nsjail uses low defaults.
@@ -173,7 +173,7 @@ func (c *Cmd) wrapSandbox() {
 
 	env := Environment(c.Env)
 	if _, hasUser := env.Get("USER"); hasUser {
-		env.Set("USER", "nobody")
+		env.Set("USER", "fgl27")
 	}
 	c.Env = []string(env)
 }
